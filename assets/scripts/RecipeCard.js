@@ -1,8 +1,9 @@
 class RecipeCard extends HTMLElement {
   constructor() {
-    // Part 1 Expose - TODO
+    super();
 
     // You'll want to attach the shadow DOM here
+    this.attachShadow({mode: 'open'});
   }
 
   set data(data) {
@@ -96,10 +97,69 @@ class RecipeCard extends HTMLElement {
     //    element.appendChild()
     //    & All of the helper functions below
 
+    // Creating the rest of the recipe card.
+    const thumbnail = document.createElement('img');
+    if(searchForKey(data, 'thumbnail') == undefined) {
+      thumbnail.setAttribute('src', searchForKey(data, 'thumbnailUrl'));
+    }
+    else
+      thumbnail.setAttribute('src', searchForKey(data, 'thumbnail'));
+    
+    const pTitle = document.createElement('p')
+    pTitle.classList.add('title');
+    
+    const article = document.createElement('a');
+    article.setAttribute('href', getUrl(data));
+    article.innerText = searchForKey(data, 'headline');
+
+    const pOrganize = document.createElement('p');
+    pOrganize.classList.add('organization');
+    pOrganize.innerText = getOrganization(data);
+    
+    const rating = document.createElement('div');
+    rating.classList.add('rating');
+
+    const avgReview = document.createElement('span');
+    const totReview = document.createElement('span');
+    const stars = document.createElement('img');
+    
+    if(searchForKey(data, 'ratingCount') != undefined) {
+      avgReview.innerText = searchForKey(data, 'ratingValue');
+      totReview.innerText = '(' + searchForKey(data, 'ratingCount') + ')';
+      stars.setAttribute('src', 'assets/images/icons/' + Math.round(avgReview.innerText) + '-star.svg');
+    }
+    else {
+      avgReview.innerText = "No Reviews";
+    }
+
+    const makeTime = document.createElement('time');
+    makeTime.innerText = convertTime(searchForKey(data, 'totalTime'));
+
+    const pIngred = document.createElement('p')
+    pIngred.classList.add('ingredients');
+    pIngred.innerText = createIngredientList(searchForKey(data, 'recipeIngredient'));
+
     // Make sure to attach your root element and styles to the shadow DOM you
     // created in the constructor()
 
     // Part 1 Expose - TODO
+    this.shadowRoot.appendChild(card);
+    this.shadowRoot.appendChild(styleElem);
+    
+    card.appendChild(thumbnail);
+    card.appendChild(pTitle);
+    card.appendChild(pOrganize);
+    card.appendChild(rating);
+    card.appendChild(makeTime);
+    card.appendChild(pIngred);
+    
+    pTitle.appendChild(article);
+
+    rating.appendChild(avgReview);
+    if(avgReview.innerText != "No Reviews") {
+      rating.appendChild(stars);
+      rating.appendChild(totReview);
+    }
   }
 }
 
